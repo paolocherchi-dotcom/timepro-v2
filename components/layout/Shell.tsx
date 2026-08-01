@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 
 import Sidebar from "./Sidebar";
+import Header from "./Header";
 
 type ShellProps = {
   title: string;
@@ -16,25 +17,7 @@ export default function Shell({
       <Sidebar />
 
       <div className="flex flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between border-b border-border bg-background px-8">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              {title}
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <p className="text-sm font-medium">
-                ABC Electric
-              </p>
-
-              <p className="text-xs text-muted-foreground">
-                TimePro v2
-              </p>
-            </div>
-          </div>
-        </header>
+        <Header title={title} />
 
         <main className="flex-1 overflow-auto p-8">
           {children}
