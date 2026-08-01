@@ -19,7 +19,7 @@ export default function Header({
 
       <div className="flex items-center gap-4">
         <div className="text-right">
-          <p className="font-medium">
+          <p className="text-sm font-semibold">
             Paolo
           </p>
 
