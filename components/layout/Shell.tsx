@@ -1,5 +1,7 @@
 import { ReactNode } from "react";
 
+import Sidebar from "./Sidebar";
+
 type ShellProps = {
   title: string;
   children: ReactNode;
@@ -11,36 +13,30 @@ export default function Shell({
 }: ShellProps) {
   return (
     <div className="flex min-h-screen bg-background text-foreground">
-      {/* Sidebar */}
-      <aside className="w-64 border-r border-border bg-card">
-        <div className="flex h-16 items-center border-b border-border px-6">
-          <h1 className="text-xl font-bold tracking-tight">
-            ⚡ TimePro
-          </h1>
-        </div>
+      <Sidebar />
 
-        <nav className="p-4">
-          <p className="text-sm text-muted-foreground">
-            Menu in costruzione...
-          </p>
-        </nav>
-      </aside>
-
-      {/* Area principale */}
       <div className="flex flex-1 flex-col">
-        <header className="flex h-16 items-center justify-between border-b border-border px-8">
+        <header className="flex h-16 items-center justify-between border-b border-border bg-background px-8">
           <div>
-            <h2 className="text-xl font-semibold">
+            <h1 className="text-2xl font-bold tracking-tight">
               {title}
-            </h2>
+            </h1>
           </div>
 
-          <div className="text-sm text-muted-foreground">
-            ABC Electric
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-sm font-medium">
+                ABC Electric
+              </p>
+
+              <p className="text-xs text-muted-foreground">
+                TimePro v2
+              </p>
+            </div>
           </div>
         </header>
 
-        <main className="flex-1 p-8">
+        <main className="flex-1 overflow-auto p-8">
           {children}
         </main>
       </div>
