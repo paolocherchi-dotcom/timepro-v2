@@ -1,7 +1,8 @@
 import Shell from "@/components/layout/Shell";
-import EmployeeTable from "@/components/employees/EmployeeTable";
+import { DataTable } from "@/components/data-table/DataTable";
 
 import { getEmployees } from "@/features/employees/api";
+import { columns } from "@/features/employees/columns";
 
 export default async function EmployeesPage() {
   const employees = await getEmployees();
@@ -25,7 +26,10 @@ export default async function EmployeesPage() {
           </button>
         </div>
 
-        <EmployeeTable employees={employees} />
+        <DataTable
+          columns={columns}
+          data={employees}
+        />
       </div>
     </Shell>
   );
