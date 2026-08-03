@@ -3,23 +3,35 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import { createEmployee } from "@/app/actions/employees";
-
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
+import EmployeeForm, {
+  EmployeeFormData,
+} from "./EmployeeForm";
+
+import { createEmployee } from "@/app/actions/employees";
+import { DEFAULT_EMPLOYEE_ROLE } from "@/lib/constants/employees";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+};
+
+const INITIAL_DATA: EmployeeFormData = {
+  first_name: "",
+  last_name: "",
+  phone: "",
+  email: "",
+  role: DEFAULT_EMPLOYEE_ROLE,
+  active: true,
 };
 
 export default function EmployeeDialog({
@@ -30,43 +42,39 @@ export default function EmployeeDialog({
 
   const [isPending, startTransition] = useTransition();
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState("Tecnico");
+  const [form, setForm] =
+    useState<EmployeeFormData>(INITIAL_DATA);
+
   const [error, setError] = useState("");
 
-  function resetForm() {
-    setFirstName("");
-    setLastName("");
-    setPhone("");
-    setEmail("");
-    setRole("Tecnico");
+  function reset() {
+    setForm(INITIAL_DATA);
     setError("");
   }
 
+  function closeDialog() {
+    reset();
+    onOpenChange(false);
+  }
+
   function handleSave() {
-    if (!firstName.trim() || !lastName.trim()) {
-      setError("Nome e Cognome sono obbligatori.");
+    if (!form.first_name.trim()) {
+      setError("Inserisci il nome.");
+      return;
+    }
+
+    if (!form.last_name.trim()) {
+      setError("Inserisci il cognome.");
       return;
     }
 
     startTransition(async () => {
       try {
-        await createEmployee({
-          first_name: firstName,
-          last_name: lastName,
-          phone,
-          email,
-          role,
-          active: true,
-        });
-
-        resetForm();
-        onOpenChange(false);
+        await createEmployee(form);
 
         router.refresh();
+
+        closeDialog();
       } catch (err) {
         setError(
           err instanceof Error
@@ -81,70 +89,37 @@ export default function EmployeeDialog({
     <Dialog
       open={open}
       onOpenChange={(value) => {
-        if (!value) resetForm();
+        if (!value) {
+          reset();
+        }
+
         onOpenChange(value);
       }}
     >
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-xl">
+
         <DialogHeader>
-          <DialogTitle>Nuovo Dipendente</DialogTitle>
+          <DialogTitle>
+            Nuovo Dipendente
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <EmployeeForm
+          value={form}
+          onChange={setForm}
+        />
 
-          <div>
-            <Label>Nome *</Label>
-            <Input
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <Label>Cognome *</Label>
-            <Input
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <Label>Telefono</Label>
-            <Input
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <Label>Email</Label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <Label>Ruolo</Label>
-            <Input
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            />
-          </div>
-
-          {error && (
-            <p className="text-sm text-red-600">
-              {error}
-            </p>
-          )}
-
-        </div>
+        {error && (
+          <p className="text-sm text-red-600">
+            {error}
+          </p>
+        )}
 
         <DialogFooter>
+
           <Button
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={closeDialog}
             disabled={isPending}
           >
             Annulla
@@ -154,9 +129,13 @@ export default function EmployeeDialog({
             onClick={handleSave}
             disabled={isPending}
           >
-            {isPending ? "Salvataggio..." : "Salva"}
+            {isPending
+              ? "Salvataggio..."
+              : "Salva"}
           </Button>
+
         </DialogFooter>
+
       </DialogContent>
     </Dialog>
   );
