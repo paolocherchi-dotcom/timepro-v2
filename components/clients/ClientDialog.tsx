@@ -14,58 +14,62 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-import EmployeeForm, {
-  EmployeeFormData,
-} from "./EmployeeForm";
+import ClientForm, { ClientFormData } from "./ClientForm";
 
 import {
-  createEmployee,
-  updateEmployee,
-} from "@/app/actions/employees";
-
-import { DEFAULT_EMPLOYEE_ROLE } from "@/lib/constants/employees";
+  createClient,
+  updateClient,
+} from "@/app/actions/clients";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSaved?: () => void;
-  employee?: EmployeeFormData | null;
+  client?: ClientFormData | null;
 };
 
-const INITIAL_DATA: EmployeeFormData = {
+const INITIAL_DATA: ClientFormData = {
   id: undefined,
-  first_name: "",
-  last_name: "",
+  company_name: "",
+  vat_number: "",
+  tax_code: "",
+  address: "",
+  city: "",
+  province: "",
+  zip_code: "",
   phone: "",
   email: "",
-  role: DEFAULT_EMPLOYEE_ROLE,
-  active: true,
+  contact_person: "",
+  notes: "",
 };
 
-export default function EmployeeDialog({
+export default function ClientDialog({
   open,
   onOpenChange,
   onSaved,
-  employee,
+  client,
 }: Props) {
   const router = useRouter();
 
   const [isPending, startTransition] = useTransition();
   const [form, setForm] =
-    useState<EmployeeFormData>(INITIAL_DATA);
+    useState<ClientFormData>(INITIAL_DATA);
   const [error, setError] = useState("");
 
-  const isEdit = !!employee;
+  const isEdit = !!client;
 
   useEffect(() => {
-    if (employee) {
-      setForm(employee);
+    if (client) {
+      setForm({
+        ...INITIAL_DATA,
+        ...client,
+      });
     } else {
       setForm(INITIAL_DATA);
     }
 
     setError("");
-  }, [employee, open]);
+  }, [client, open]);
 
   function reset() {
     setForm(INITIAL_DATA);
@@ -78,44 +82,31 @@ export default function EmployeeDialog({
   }
 
   function handleSave() {
-    if (!form.first_name.trim()) {
-      setError("Inserisci il nome.");
-      return;
-    }
-
-    if (!form.last_name.trim()) {
-      setError("Inserisci il cognome.");
+    if (!form.company_name.trim()) {
+      setError("Inserisci la ragione sociale.");
       return;
     }
 
     startTransition(async () => {
       try {
-        const { id, ...employeeData } = form;
+        const { id, ...clientData } = form;
 
         if (isEdit && id) {
-          await updateEmployee(id, employeeData);
-
-          toast.success(
-            "Dipendente aggiornato con successo."
-          );
+          await updateClient(id, clientData);
+          toast.success("Cliente aggiornato con successo.");
         } else {
-          await createEmployee(employeeData);
-
-          toast.success(
-            "Dipendente creato con successo."
-          );
+          await createClient(clientData);
+          toast.success("Cliente creato con successo.");
         }
 
         router.refresh();
-
         onSaved?.();
-
         closeDialog();
       } catch (err) {
         console.error(err);
 
         toast.error(
-          "Errore durante il salvataggio del dipendente."
+          "Errore durante il salvataggio del cliente."
         );
 
         setError(
@@ -138,16 +129,16 @@ export default function EmployeeDialog({
         onOpenChange(value);
       }}
     >
-      <DialogContent className="max-w-xl">
+      <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>
             {isEdit
-              ? "Modifica Dipendente"
-              : "Nuovo Dipendente"}
+              ? "Modifica Cliente"
+              : "Nuovo Cliente"}
           </DialogTitle>
         </DialogHeader>
 
-        <EmployeeForm
+        <ClientForm
           value={form}
           onChange={setForm}
         />

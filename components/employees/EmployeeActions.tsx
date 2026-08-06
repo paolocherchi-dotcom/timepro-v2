@@ -1,22 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import EmployeeDialog from "./EmployeeDialog";
 
-export default function EmployeeActions() {
-  const [open, setOpen] = useState(false);
+type Props = {
+  onNew: () => void;
+};
 
+export default function EmployeeActions({
+  onNew,
+}: Props) {
   return (
-    <>
-      <Button onClick={() => setOpen(true)}>
-        + Nuovo Dipendente
-      </Button>
-
-      <EmployeeDialog
-        open={open}
-        onOpenChange={setOpen}
-      />
-    </>
+    <Button onClick={onNew}>
+      + Nuovo Dipendente
+    </Button>
   );
 }

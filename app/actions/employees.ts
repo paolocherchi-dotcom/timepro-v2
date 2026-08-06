@@ -6,19 +6,20 @@ import { supabase } from "@/lib/supabase";
 type EmployeeInput = {
   first_name: string;
   last_name: string;
-  phone?: string;
-  email?: string;
+  phone: string;
+  email: string;
   role: string;
   active: boolean;
 };
 
-export async function createEmployee(data: EmployeeInput) {
+export async function createEmployee(employee: EmployeeInput) {
   const { error } = await supabase
     .from("employees")
-    .insert(data);
+    .insert(employee);
 
   if (error) {
-    throw new Error(error.message);
+    console.error(error);
+    throw new Error("Errore durante la creazione del dipendente.");
   }
 
   revalidatePath("/dipendenti");
@@ -26,15 +27,16 @@ export async function createEmployee(data: EmployeeInput) {
 
 export async function updateEmployee(
   id: string,
-  data: Partial<EmployeeInput>
+  employee: EmployeeInput
 ) {
   const { error } = await supabase
     .from("employees")
-    .update(data)
+    .update(employee)
     .eq("id", id);
 
   if (error) {
-    throw new Error(error.message);
+    console.error(error);
+    throw new Error("Errore durante l'aggiornamento del dipendente.");
   }
 
   revalidatePath("/dipendenti");
@@ -47,7 +49,8 @@ export async function deleteEmployee(id: string) {
     .eq("id", id);
 
   if (error) {
-    throw new Error(error.message);
+    console.error(error);
+    throw new Error("Errore durante l'eliminazione del dipendente.");
   }
 
   revalidatePath("/dipendenti");

@@ -10,6 +10,7 @@ import {
 } from "@/lib/constants/employees";
 
 export type EmployeeFormData = {
+  id?: string;
   first_name: string;
   last_name: string;
   phone: string;
@@ -39,7 +40,6 @@ export default function EmployeeForm({
 
   return (
     <div className="space-y-5">
-
       <div>
         <Label>Nome *</Label>
 
@@ -107,7 +107,6 @@ export default function EmployeeForm({
       </div>
 
       <div className="flex items-center gap-3">
-
         <Checkbox
           checked={value.active}
           onCheckedChange={(checked) =>
@@ -116,7 +115,6 @@ export default function EmployeeForm({
         />
 
         <Label>Dipendente attivo</Label>
-
       </div>
     </div>
   );
