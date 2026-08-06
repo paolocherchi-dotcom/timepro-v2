@@ -1,11 +1,16 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 
 import ClientTable from "./ClientTable";
 import ClientDialog from "./ClientDialog";
+import ConfirmDeleteDialog from "@/components/common/ConfirmDeleteDialog";
+
+import { deleteClient } from "@/app/actions/clients";
 
 import type { Client } from "@/types/database";
 
@@ -13,20 +18,52 @@ type Props = {
   clients: Client[];
 };
 
-export default function ClientsClient({ clients }: Props) {
+export default function ClientsClient({
+  clients,
+}: Props) {
+  const router = useRouter();
+
   const [open, setOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [selectedClient, setSelectedClient] =
+    useState<Client | null>(null);
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [clientToDelete, setClientToDelete] =
+    useState<Client | null>(null);
 
   function handleNew() {
     setSelectedClient(null);
     setOpen(true);
   }
 
-  function handleClose(open: boolean) {
-    setOpen(open);
+  function handleEdit(client: Client) {
+    setSelectedClient(client);
+    setOpen(true);
+  }
 
-    if (!open) {
-      setSelectedClient(null);
+  function handleDelete(client: Client) {
+    setClientToDelete(client);
+    setDeleteOpen(true);
+  }
+
+  async function confirmDelete() {
+    if (!clientToDelete) return;
+
+    try {
+      await deleteClient(clientToDelete.id);
+
+      toast.success("Cliente eliminato con successo.");
+
+      setDeleteOpen(false);
+      setClientToDelete(null);
+
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+
+      toast.error(
+        "Errore durante l'eliminazione del cliente."
+      );
     }
   }
 
@@ -50,20 +87,43 @@ export default function ClientsClient({ clients }: Props) {
   }, [selectedClient]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <Button onClick={handleNew}>
-          Nuovo Cliente
-        </Button>
+    <>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <Button onClick={handleNew}>
+            Nuovo Cliente
+          </Button>
+        </div>
+
+        <ClientTable
+          data={clients}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+
+        <ClientDialog
+          open={open}
+          onOpenChange={(value) => {
+            setOpen(value);
+
+            if (!value) {
+              setSelectedClient(null);
+            }
+          }}
+          client={dialogClient}
+        />
       </div>
 
-      <ClientTable data={clients} />
-
-      <ClientDialog
-        open={open}
-        onOpenChange={handleClose}
-        client={dialogClient}
+      <ConfirmDeleteDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        description={
+          clientToDelete
+            ? `Vuoi eliminare definitivamente il cliente "${clientToDelete.company_name}"?`
+            : ""
+        }
+        onConfirm={confirmDelete}
       />
-    </div>
+    </>
   );
 }
